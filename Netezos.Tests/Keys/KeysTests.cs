@@ -20,5 +20,15 @@ namespace Netezos.Tests.Keys
             var childKey1 = hdKey1.Derive(0).Derive(1, true).Derive(257);
             var childKey2 = hdKey2.Derive(0).Derive(1, true).Derive(257);
         }
+
+        [Fact]
+        public void TestBIP32Key()
+        {
+        }
+
+        [Fact]
+        public void TestSLIP10Key()
+        {
+        }
     }
 }
