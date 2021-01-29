@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Netezos</PackageId>
+    <PackageTags>tezos crypto blockchain xtz rpc keys signing forging encoding ledger</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/baking-bad/netezos</PackageProjectUrl>
+
+    <RepositoryUrl>https://github.com/baking-bad/netezos</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <Authors>Groxan</Authors>
+    <Product>Netezos</Product>
+    <Description>.NET SDK for Tezos blockchain (.NET Stansard 2.0)</Description>
+    <Version>2.0.1</Version>
+    <Copyright>Copyright © Baking Bad 2020</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="docfx.console" Version="2.56.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Dynamic.Json" Version="1.2.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="dotNetTZ.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <None Remove="dotNetTZ_violet.svg" />
+    <Resource Include="dotNetTZ_violet.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+</Project>
