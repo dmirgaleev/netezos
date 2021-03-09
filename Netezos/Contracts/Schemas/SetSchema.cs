@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Netezos.Encoding;
 
@@ -8,9 +9,12 @@ namespace Netezos.Contracts
     {
         public override PrimType Prim => PrimType.set;
 
-        public override string Name => Field ?? Type
+        public override string Name => (Field ?? Type
             ?? Item.Field ?? Item.Type
-            ?? Prim.ToString();
+            ?? Prim.ToString())
+            + Suffix;
+
+        public override string Signature => $"set:{Item.Signature}";
 
         public Schema Item { get; }
 
@@ -44,6 +48,11 @@ namespace Netezos.Contracts
             {
                 throw FormatException(value);
             }
+        }
+
+        protected override List<IMicheline> GetArgs()
+        {
+            return new List<IMicheline>(1) { Item.ToMicheline() };
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Netezos.Encoding;
 
@@ -7,6 +8,8 @@ namespace Netezos.Contracts
     public sealed class ParameterSchema : Schema
     {
         public override PrimType Prim => PrimType.parameter;
+
+        public override string Signature => Schema.Signature;
 
         public Schema Schema { get; }
 
@@ -37,6 +40,11 @@ namespace Netezos.Contracts
         internal override void WriteValue(Utf8JsonWriter writer, IMicheline value)
         {
             Schema.WriteValue(writer, value);
+        }
+
+        protected override List<IMicheline> GetArgs()
+        {
+            return new List<IMicheline>(1) { Schema.ToMicheline() };
         }
     }
 }

@@ -17,18 +17,19 @@ namespace Netezos.Tests.Contracts
             foreach (var address in Directory.GetFiles($@"..\..\..\Contracts\Parameters").Select(x => x.Substring(x.Length - 41, 36)))
             {
                 var script = DJson.Read($@"..\..\..\Contracts\Scripts\{address}.json");
-                var contract = new Contract(Micheline.FromJson((string)script.code));
+                var contract = new ContractScript(Micheline.FromJson((string)script.code));
 
                 foreach (var sample in DJson.Read($@"..\..\..\Contracts\Parameters\{address}.json"))
                 {
                     var rawEntrypoint = sample.raw.entrypoint;
                     var rawValue = Micheline.FromJson(sample.raw.value);
 
-                    var humanized = contract.HumanizeParameters(rawEntrypoint, rawValue);
+                    var (normEntrypoint, normValue) = contract.NormalizeParameters((string)rawEntrypoint, (IMicheline)rawValue);
+                    var humanized = contract.HumanizeParameters(normEntrypoint, normValue);
 
                     Assert.Equal(
                         ((string)sample.human.value).Replace("\t", "").Replace("\r", "").Replace("\n", "").Replace(" ", ""),
-                        ((string)humanized).Replace("\t", "").Replace("\r", "").Replace("\n", "").Replace(" ", "").Trim('\"'));
+                        humanized.Replace("\t", "").Replace("\r", "").Replace("\n", "").Replace(" ", "").Trim('\"'));
                 }
             }
         }

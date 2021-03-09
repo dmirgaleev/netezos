@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Netezos.Encoding;
 
@@ -8,9 +9,13 @@ namespace Netezos.Contracts
     {
         public override PrimType Prim => PrimType.map;
 
-        public override string Name => Field ?? Type
+        public override string Name => (Field ?? Type
             ?? Value.Field ?? Value.Type
-            ?? Prim.ToString();
+            ?? Prim.ToString())
+            + Suffix;
+
+        public override string Signature =>
+            $"{(Key is IFlat ? "map_flat" : "map")}:{Key.Signature}:{Value.Signature}";
 
         public Schema Key { get; }
         public Schema Value { get; }
@@ -31,7 +36,7 @@ namespace Netezos.Contracts
             if (Key is IFlat)
             {
                 writer.WriteStartObject();
-                writer.WritePropertyName(Prim.ToString());
+                writer.WritePropertyName(Key.Prim.ToString());
                 Value.WriteValue(writer);
                 writer.WriteEndObject();
             }
@@ -100,6 +105,11 @@ namespace Netezos.Contracts
             }
 
             writer.WriteEndArray();
+        }
+
+        protected override List<IMicheline> GetArgs()
+        {
+            return new List<IMicheline>(2) { Key.ToMicheline(), Value.ToMicheline() };
         }
     }
 }

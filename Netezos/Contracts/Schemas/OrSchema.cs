@@ -27,9 +27,9 @@ namespace Netezos.Contracts
         {
             writer.WriteStartObject();
 
-            foreach (var (path, child) in Children())
+            foreach (var (path, child) in ChildrenPaths())
             {
-                writer.WritePropertyName($"or_{path}");
+                writer.WritePropertyName($"{path}:{child.Signature}");
                 child.WriteValue(writer);
             }
 
@@ -38,9 +38,6 @@ namespace Netezos.Contracts
 
         internal override void WriteValue(Utf8JsonWriter writer, IMicheline value)
         {
-            if (!(value is MichelinePrim prim) || prim.Args?.Count != 1)
-                throw FormatException(value);
-
             var (endSchema, endValue, endPath) = JumpToEnd(this, value);
             var path = endSchema.Field ?? endSchema.Type ?? endPath;
             
@@ -50,6 +47,11 @@ namespace Netezos.Contracts
             endSchema.WriteValue(writer, endValue);
 
             writer.WriteEndObject();
+        }
+
+        protected override List<IMicheline> GetArgs()
+        {
+            return new List<IMicheline>(2) { Left.ToMicheline(), Right.ToMicheline() };
         }
 
         (Schema, IMicheline, string) JumpToEnd(OrSchema or, IMicheline value, string path = "")
@@ -67,13 +69,13 @@ namespace Netezos.Contracts
                 {
                     currentSchema = currentOr.Left;
                     currentValue = prim.Args[0];
-                    currentPath += "0";
+                    currentPath += "L";
                 }
                 else if (prim.Prim == PrimType.Right)
                 {
                     currentSchema = currentOr.Right;
                     currentValue = prim.Args[0];
-                    currentPath += "1";
+                    currentPath += "R";
                 }
                 else
                 {
@@ -84,26 +86,49 @@ namespace Netezos.Contracts
             return (currentSchema, currentValue, currentPath);
         }
 
-        IEnumerable<(string, Schema)> Children(string path = "")
+        public IEnumerable<Schema> Children()
         {
             if (Left is OrSchema leftOr)
             {
-                foreach (var child in leftOr.Children(path + "0"))
+                foreach (var child in leftOr.Children())
                     yield return child;
             }
             else
             {
-                yield return (Left.Field ?? Left.Type ?? path + "0", Left);
+                yield return Left;
             }
 
             if (Right is OrSchema rightOr)
             {
-                foreach (var child in rightOr.Children(path + "1"))
+                foreach (var child in rightOr.Children())
                     yield return child;
             }
             else
             {
-                yield return (Right.Field ?? Right.Type ?? path + "1", Right);
+                yield return Right;
+            }
+        }
+
+        IEnumerable<(string, Schema)> ChildrenPaths(string path = "")
+        {
+            if (Left is OrSchema leftOr)
+            {
+                foreach (var child in leftOr.ChildrenPaths(path + "L"))
+                    yield return child;
+            }
+            else
+            {
+                yield return (Left.Field ?? Left.Type ?? path + "L", Left);
+            }
+
+            if (Right is OrSchema rightOr)
+            {
+                foreach (var child in rightOr.ChildrenPaths(path + "R"))
+                    yield return child;
+            }
+            else
+            {
+                yield return (Right.Field ?? Right.Type ?? path + "R", Right);
             }
         }
     }
